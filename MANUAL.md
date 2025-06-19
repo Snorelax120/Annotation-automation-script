@@ -29,16 +29,12 @@ The script uses a state machine controlled primarily by the backtick ( ` ) key. 
 | | | `qweasdzxc` | Press the corresponding key to select the single most prominent emotion. |
 | 5 | **Select Intensity** | `` ` `` (fourth press) | Enters "Intensity Radio Mode". |
 | | | `q` or `w` | Press `q` for "Low" intensity or `w` for "High" intensity. |
-| 6 | **Set Confidence Slider** | `` ` `` (fifth press) | Enters "Confidence Slider Mode". |
-| | | `1`-`5` | Press a number from 1 to 5 to set the slider's value. |
-| 7 | **Set Positivity Slider** | `` ` `` (sixth press) | Enters "Positivity Slider Mode". |
-| | | `1`-`5` | Press a number from 1 to 5 to set the slider's value. |
-| 8 | **Set Arousal Slider** | `` ` `` (seventh press) | Enters "Arousal Slider Mode". |
-| | | `1`-`5` | Press a number from 1 to 5 to set the slider's value. |
-| 9 | **Select Additional Info** | `` ` `` (eighth press) | Enters "Additional Info Checkbox Mode". |
+| 6 | **Set All Sliders** | `` ` `` (fifth press) | Enters "Slider Mode" for all three sliders (Confidence, Positivity, Arousal). |
+| | | `1`-`5` (x3) | Press a number from 1 to 5 for the first slider, then again for the second, and a third time for the third. |
+| 7 | **Select Additional Info** | `` ` `` (sixth press) | Enters "Additional Info Checkbox Mode". |
 | | | `qweasdzxcvb` | Press the corresponding keys to check one or more boxes. |
-| 10 | **Finish** | `` ` `` (ninth press) | Exits all modes. The script is now idle. |
-| 11 | **Submit Form** | `Enter` | Clicks the "Submit" button and automatically resets the script for the next annotation task. |
+| 8 | **Finish** | `` ` `` (seventh press) | Exits all modes. The script is now idle. |
+| 9 | **Submit Form** | `Enter` | Clicks the "Submit" button and automatically resets the script for the next annotation task. |
 
 ## 4. Key Mappings Quick Reference
 
