@@ -1,5 +1,9 @@
 # Annotation Automation Script Manual
 
+## Patch Notes
+- **Blue Highlight**: The current section is now highlighted with a blue border for better visual feedback.
+- **Navigate Back**: You can now go back to the previous section by pressing `~` (Shift + `).
+
 ## 1. Goal
 
 This script is designed to accelerate the annotation workflow for the given web form. It automates filling the form by using keyboard shortcuts to cycle through different input fields and select options, reducing the need for mouse interaction.
@@ -15,7 +19,7 @@ This script is designed to accelerate the annotation workflow for the given web 
 
 ## 3. The Annotation Workflow
 
-The script uses a state machine controlled primarily by the backtick ( ` ) key. Each press of the backtick key moves you to the next stage of the form.
+The script uses a state machine controlled primarily by the backtick ( ` ) key. Each press of the backtick key moves you to the next stage of the form. The currently active section will always be indicated by a blue highlight.
 
 **Press `F2` at any time to reset the entire script and start over from Step 1.**
 
@@ -41,7 +45,8 @@ The script uses a state machine controlled primarily by the backtick ( ` ) key. 
 ### Main Controls
 | Key | Action |
 | :--- | :--- |
-| `` ` `` | Cycle through input modes (Textbox -> Emotions -> Sliders -> etc.). |
+| `` ` `` | Cycle forward to the next section. |
+| `~` | Cycle backward to the previous section. |
 | `F2` | Reset the script state for a new annotation. |
 | `Enter` | Submit the form and reset. |
 

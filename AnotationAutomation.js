@@ -468,6 +468,59 @@ function handleTriggerKeyPress(event) {
         return;
     }
 
+    // NEW: Handle Shift + Backtick (~) to go back
+    if (event.key === '~') {
+        console.log('~ key pressed. Attempting to go back to the previous section.');
+
+        if (additionalInfoMode) {
+            additionalInfoMode = false;
+            allSlidersMode = true;
+            sliderInputCount = 0; // Reset to the start of sliders
+            const firstSlider = findFirstSlider();
+            if (firstSlider) highlightElementParent(firstSlider);
+            console.log('Went back to slider mode.');
+        } else if (allSlidersMode) {
+            allSlidersMode = false;
+            intensityMode = true;
+            const firstIntensityRadio = findFirstIntensityRadio();
+            if (firstIntensityRadio) highlightElementParent(firstIntensityRadio);
+            console.log('Went back to intensity mode.');
+        } else if (intensityMode) {
+            intensityMode = false;
+            radioMode = true;
+            const firstRadio = focusFirstRadio();
+            if (firstRadio) highlightElementParent(firstRadio);
+            console.log('Went back to radio mode.');
+        } else if (radioMode) {
+            radioMode = false;
+            checkBoxMode = true;
+            const firstCheckbox = focusFirstCheckbox();
+            if (firstCheckbox) highlightElementParent(firstCheckbox);
+            console.log('Went back to checkbox mode.');
+        } else if (checkBoxMode) {
+            checkBoxMode = false;
+            // Reset to the initial text box state
+            const iframe = document.getElementById('frm1');
+            if (iframe) {
+                let doc = iframe.contentDocument || iframe.contentWindow.document;
+                let inputs = doc.querySelectorAll('input[type="text"], textarea');
+                if (inputs.length > 0) {
+                    highlightElementParent(inputs[0]);
+                    inputs[0].focus();
+                }
+            }
+            console.log('Went back to text input mode.');
+        }
+
+        // Decrement trigger count to align with the state change
+        if (triggerCount > 1) { // Only decrement if we are past the initial text fill state
+            triggerCount -= 2; // Decrement to allow the next '`' to advance correctly
+        }
+        
+        event.preventDefault();
+        return;
+    }
+
     console.log('[Iframe Listener] Key pressed:', event.key, 'Target:', event.target, 'checkBoxMode:', checkBoxMode, 'radioMode:', radioMode, 'intensityMode:', intensityMode, 'allSlidersMode:', allSlidersMode, 'sliderInputCount:', sliderInputCount, 'additionalInfoMode:', additionalInfoMode, 'triggerCount:', triggerCount, 'hasFilledOnTrigger:', hasFilledOnTrigger);
     if (event.key === '`') {
         triggerCount++;
