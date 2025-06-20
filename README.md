@@ -6,10 +6,10 @@ This script is designed to accelerate the annotation workflow for the given web 
 
 ## 2. How to Use
 
-1.  Open the annotation webpage.
-2.  Open the browser's developer console (usually by pressing `F12` or `Cmd+Option+I` on Mac).
+1.  Open the /task webpage.
+2.  Open the browser's developer console (usually by pressing `F12` or `Cmd+Option+I` on Mac or by right-clicking white space, clicking inspect and then console.).
 3.  Copy the entire content of the script.
-4.  Paste the script (you might need to type allow pasting like the console tells you to) into the console(select "console" from the top, next to elements) and make sure it says top and not frm-1 and press `Enter`.
+4.  Paste the script (you might need to type "allow pasting" into the console if it tells you to) into the console(select "console" from the top, next to "elements") and make sure it says "top" and not "frm1 Task-editor" and press `Enter`.
 
 5.  Click inside the form to ensure it has focus. The script is now active.
 
