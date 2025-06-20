@@ -8,6 +8,41 @@ let intensityMode = false; // Track if we are in intensity mode
 let allSlidersMode = false; // NEW: Consolidated slider mode
 let sliderInputCount = 0; // NEW: Track which slider is next
 let additionalInfoMode = false; // Track if we are in the final checkbox mode
+let currentlyHighlightedContainer = null; // Keep track of the highlighted element
+
+// NEW: Function to clear any active highlight
+function clearHighlight() {
+    if (currentlyHighlightedContainer) {
+        currentlyHighlightedContainer.style.boxShadow = 'none';
+        currentlyHighlightedContainer = null;
+    }
+}
+
+// MODIFIED: To set a persistent highlight
+function highlightElementParent(element) {
+    // First, clear the previous highlight
+    clearHighlight();
+
+    if (!element) {
+        return; // No element to highlight
+    }
+
+    const containerToHighlight = element.closest('.component-wrapper');
+
+    if (containerToHighlight) {
+        // Apply the highlight
+        containerToHighlight.style.transition = 'box-shadow 0.2s ease-in-out';
+        containerToHighlight.style.boxShadow = '0 0 0 2px blue';
+        // Store the reference
+        currentlyHighlightedContainer = containerToHighlight;
+    } else {
+        // Fallback if no container is found
+        console.log("Could not find a '.component-wrapper' container for highlighting. Highlighting the element directly as a fallback.", element);
+        element.style.transition = 'box-shadow 0.2s ease-in-out';
+        element.style.boxShadow = '0 0 0 2px blue';
+        currentlyHighlightedContainer = element; // Store fallback element
+    }
+}
 
 // NEW HELPER FUNCTION to update text inputs and notify the framework
 function updateTextboxValue(inputElement, newValue) {
@@ -77,14 +112,12 @@ function findAndFillFirstTextBox() {
 
     if (targetInput) {
         console.log('Found text box:', targetInput);
-        targetInput.style.border = '2px solid red';
+        highlightElementParent(targetInput); // Use the blue highlight
         targetInput.focus();
         updateTextboxValue(targetInput, "The speaker's tone is "); // MODIFIED
         console.log('Typed "The speaker\'s tone is " into the first text box.');
 
-        setTimeout(() => {
-            if (targetInput) targetInput.style.border = '';
-        }, 3000);
+        // The highlight function has its own timeout, so the old border logic is removed.
         return true;
     } else {
         console.error('No suitable text box found in the iframe.');
@@ -94,20 +127,20 @@ function findAndFillFirstTextBox() {
 
 function focusFirstCheckbox() {
     const iframe = document.getElementById('frm1');
-    if (!iframe) return false;
+    if (!iframe) return null;
     let doc;
     try {
         doc = iframe.contentDocument || iframe.contentWindow.document;
     } catch (e) {
-        return false;
+        return null;
     }
     // Find the first visible checkbox in the emotion section
     const checkboxes = doc.querySelectorAll('input[type="checkbox"]');
     if (checkboxes.length > 0) {
         checkboxes[0].focus();
-        return true;
+        return checkboxes[0];
     }
-    return false;
+    return null;
 }
 
 function checkEmotionCheckbox(emotion) {
@@ -150,20 +183,20 @@ function checkEmotionCheckbox(emotion) {
 
 function focusFirstRadio() {
     const iframe = document.getElementById('frm1');
-    if (!iframe) return false;
+    if (!iframe) return null;
     let doc;
     try {
         doc = iframe.contentDocument || iframe.contentWindow.document;
     } catch (e) {
-        return false;
+        return null;
     }
     // Find the first visible radio in the emotion section
     const radios = doc.querySelectorAll('input[type="radio"]');
     if (radios.length > 0) {
         radios[0].focus();
-        return true;
+        return radios[0];
     }
-    return false;
+    return null;
 }
 
 function checkEmotionRadio(emotion) {
@@ -235,6 +268,28 @@ function checkIntensityRadio(intensity) {
     }
 }
 
+function findFirstIntensityRadio() {
+    const iframe = document.getElementById('frm1');
+    if (!iframe) return null;
+    let doc;
+    try {
+        doc = iframe.contentDocument || iframe.contentWindow.document;
+    } catch (e) {
+        return null;
+    }
+    // Find the label containing "Low" or "High" and get its radio button
+    const labels = Array.from(doc.querySelectorAll('label'));
+    for (const label of labels) {
+        if (label.textContent && (label.textContent.trim().toLowerCase() === 'low' || label.textContent.trim().toLowerCase() === 'high')) {
+            const radio = label.querySelector('input[type="radio"]');
+            if (radio) {
+                return radio;
+            }
+        }
+    }
+    return null;
+}
+
 function setSliderValue(sliderIndex, value) {
     const iframe = document.getElementById('frm1');
     if (!iframe) {
@@ -287,6 +342,19 @@ function setSliderValue(sliderIndex, value) {
     }
 }
 
+function findFirstSlider() {
+    const iframe = document.getElementById('frm1');
+    if (!iframe) return null;
+    let doc;
+    try {
+        doc = iframe.contentDocument || iframe.contentWindow.document;
+    } catch (e) {
+        return null;
+    }
+    const slider = doc.querySelector('.slider__container');
+    return slider;
+}
+
 function checkAdditionalInfoCheckbox(key) {
     const iframe = document.getElementById('frm1');
     if (!iframe) return;
@@ -327,6 +395,29 @@ function checkAdditionalInfoCheckbox(key) {
     }
 }
 
+function findFirstAdditionalInfoCheckbox() {
+    const iframe = document.getElementById('frm1');
+    if (!iframe) return null;
+    let doc;
+    try {
+        doc = iframe.contentDocument || iframe.contentWindow.document;
+    } catch (e) {
+        return null;
+    }
+    // This is a guess based on the key map in checkAdditionalInfoCheckbox
+    const labelTextToFind = 'Background Voices'.toLowerCase();
+    const labels = Array.from(doc.querySelectorAll('label'));
+    for (const label of labels) {
+        if (label.textContent && label.textContent.trim().replace(/\s+/g, ' ').toLowerCase() === labelTextToFind) {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                return checkbox;
+            }
+        }
+    }
+    return null;
+}
+
 function handleTriggerKeyPress(event) {
     // Press the submit button if Enter is pressed, regardless of the current mode
     if (event.key === '\n' || event.key === 'Enter') {
@@ -349,6 +440,7 @@ function handleTriggerKeyPress(event) {
                 if (submitBtn) {
                     submitBtn.click();
                     console.log('Submit button found and clicked.');
+                    clearHighlight(); // Clear highlight on submit
                     // RESET automation state for new form
                     hasFilledOnTrigger = false;
                     triggerCount = 0;
@@ -382,20 +474,24 @@ function handleTriggerKeyPress(event) {
         console.log('Backtick logic: checkBoxMode:', checkBoxMode, 'radioMode:', radioMode, 'intensityMode:', intensityMode, 'allSlidersMode:', allSlidersMode, 'additionalInfoMode:', additionalInfoMode, 'triggerCount:', triggerCount, 'hasFilledOnTrigger:', hasFilledOnTrigger);
         if (!checkBoxMode && !radioMode && !intensityMode && !allSlidersMode && !additionalInfoMode && (triggerCount === 2 || (hasFilledOnTrigger && triggerCount === 1))) {
             checkBoxMode = true;
-            const focused = focusFirstCheckbox();
-            console.log('Entered checkbox mode. focusFirstCheckbox returned:', focused, 'Press mapped keys to check emotions. Press ` again to continue.');
+            const firstCheckbox = focusFirstCheckbox();
+            if (firstCheckbox) highlightElementParent(firstCheckbox);
+            console.log('Entered checkbox mode. focusFirstCheckbox returned:', !!firstCheckbox, 'Press mapped keys to check emotions. Press ` again to continue.');
             event.preventDefault();
             return;
         } else if (checkBoxMode) {
             checkBoxMode = false;
             radioMode = true;
-            const focused = focusFirstRadio();
-            console.log('Exited checkbox mode. Entered radio mode. focusFirstRadio returned:', focused, 'Press mapped keys to check radios. Press ` again to continue.');
+            const firstRadio = focusFirstRadio();
+            if (firstRadio) highlightElementParent(firstRadio);
+            console.log('Exited checkbox mode. Entered radio mode. focusFirstRadio returned:', !!firstRadio, 'Press mapped keys to check radios. Press ` again to continue.');
             event.preventDefault();
             return;
         } else if (radioMode) {
             radioMode = false;
             intensityMode = true;
+            const firstIntensityRadio = findFirstIntensityRadio();
+            if (firstIntensityRadio) highlightElementParent(firstIntensityRadio);
             console.log('Exited radio mode. Entered intensity mode. Press Q for Low, W for High. Press ` again to continue.');
             event.preventDefault();
             return;
@@ -403,18 +499,23 @@ function handleTriggerKeyPress(event) {
             intensityMode = false;
             allSlidersMode = true;
             sliderInputCount = 0;
+            const firstSlider = findFirstSlider();
+            if (firstSlider) highlightElementParent(firstSlider);
             console.log('Exited intensity mode. Entered slider mode. Press 1-5 for each of the three sliders. Press ` again to continue.');
             event.preventDefault();
             return;
         } else if (allSlidersMode) {
             allSlidersMode = false;
             additionalInfoMode = true;
+            const firstAdditionalCheckbox = findFirstAdditionalInfoCheckbox();
+            if (firstAdditionalCheckbox) highlightElementParent(firstAdditionalCheckbox);
             console.log('Exited slider mode. Entered additional info mode. Press mapped keys to check boxes. Press ` again to exit.');
             event.preventDefault();
             return;
         } else if (additionalInfoMode) {
             additionalInfoMode = false;
             triggerCount = 0;
+            clearHighlight(); // Clear highlight when exiting all modes
             // Move focus away from any active element
             const iframe = document.getElementById('frm1');
             if (iframe && iframe.contentDocument && iframe.contentDocument.activeElement) {
@@ -612,6 +713,7 @@ document.addEventListener('keydown', function(event) {
     // Note: The F2 listener is separate from handleTriggerKeyPress
     if (event.key === 'F2') {
         console.log('F2 pressed. Backtick (`) key to fill is re-armed.');
+        clearHighlight(); // Clear highlight on reset
         hasFilledOnTrigger = false;
         triggerCount = 0;
         checkBoxMode = false;
